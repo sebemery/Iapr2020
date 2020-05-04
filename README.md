@@ -1,1 +1,1 @@
-# Iapr-2020-Special-Project
+# Image Analysis and Pattern Recognition 2020
