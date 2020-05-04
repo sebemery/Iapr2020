@@ -1,6 +1,4 @@
-# Image Analysis and Pattern Recognition 
-
-# Master course EPFL Spring Semester 2020
+# Image Analysis and Pattern Recognition 2020
 
 ## Laboratory
 Laboratory 1 : Image segmentation  
