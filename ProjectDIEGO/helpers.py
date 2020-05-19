@@ -2,10 +2,12 @@ import cv2
 import os
 import skimage.io
 import numpy as np
+import matplotlib.pyplot as plt
 
 import skimage
 from skimage.measure import label, regionprops, find_contours
 from skimage.filters import threshold_minimum, threshold_multiotsu
+from skimage.transform import rescale
 from skimage import morphology
 from skimage import exposure
 
@@ -39,12 +41,22 @@ def extract_images(data_path='./data/robot_parcours_1.avi'):
     video.release()
     cv2.destroyAllWindows()
     
-def load_data(): 
+def load_data(plot_images=False): 
     images_path = './images/'
     images_names = [nm for nm in os.listdir(images_path) if '.jpg' in nm]  # make sure to only load .jpg
     images_names.sort()  # sort file names
     ic = skimage.io.imread_collection([os.path.join(images_path, nm) for nm in images_names])
     images = skimage.io.concatenate_images(ic)
+    
+    if plot_images == True:
+        # plot images
+        fig, axes = plt.subplots(5, int(len(images)/5)+1, figsize=(24, 8))
+        for ax, im, nm in zip(axes.ravel(), images, images_names):
+            ax.imshow(im)
+            ax.axis('off')
+            ax.set_title(nm)   
+        for ax in axes.ravel()[len(images):]:
+            fig.delaxes(ax)
     
     return images, images_names
 
@@ -155,7 +167,14 @@ def Overlap(l1, r1, l2, r2):
     return True
 
 def crop_image(image, bbox):
-    return image[bbox[1]:bbox[3], bbox[0]:bbox[2]]
+    crop_im = image[bbox[1]:bbox[3], bbox[0]:bbox[2]].copy()
+    gray = skimage.color.rgb2gray(crop_im)
+    a, b = np.percentile(gray, (1, 70))
+    img_rescale = exposure.rescale_intensity(gray, in_range=(a, b))
+    thresholds = threshold_multiotsu(img_rescale)
+    regions = np.digitize(gray, bins=thresholds)
+    binarized = regions == 0 
+    return rescale(binarized.astype(float), 40/50, anti_aliasing=False)[:,:]
 
 def frames_to_video(inputpath, outputpath, fps):    
     image_array = []
@@ -171,3 +190,72 @@ def frames_to_video(inputpath, outputpath, fps):
     for i in range(len(image_array)):
         out.write(image_array[i])
     out.release()
+    
+def get_features(operator, nb_coeff) :
+    """
+    Input : (Nx5x40x40) arrays of operators 
+    Output : (5Nx4) arrays of features and (5N) arrays of target
+            Features : First three features are ratio of the amplitude of fourier descriptor -> [A1/A2, A3/A2, A4/A2]
+                       Last features is the number of disjoint contour -> plus, minus, mul : 1, equal : 2, div :3
+    """    
+    # compute the features -> amplitude and first fourier descriptors excluded -> invariance in translation and rotation
+    coeff, nb_contours = fourier_descriptors(operator, nb_coeff)
+    A1 = np.sqrt(coeff[1].real**2+coeff[1].imag**2)
+    A2 = np.sqrt(coeff[3].real**2+coeff[3].imag**2)
+    A3 = np.sqrt(coeff[4].real**2+coeff[4].imag**2)
+    A4 = np.sqrt(coeff[2].real**2+coeff[2].imag**2)
+    A5 = np.sqrt(coeff[5].real**2+coeff[5].imag**2)
+    # compute ratios of Fourier descriptors -> scale invariant
+    coord_x = (A1/A1)
+    coord_y = (A2/A1)
+    coord_z = (A3/A1)
+    coord_w = (A4/A1)
+    coord_v = (A5/A1)
+    # concatenate the features 
+    features = np.array([coord_x,coord_y,coord_z,coord_w,coord_v,nb_contours])
+
+    return features
+    
+def fourier_descriptors(operators, nb_coeff):
+    """
+    Calculate the DFT of the operator's contour 
+    Return the first N coefficient and the number of disjoint contours 
+    """
+    # get the contours
+    contour = find_contours(operators,0.2)
+    nb_contours = len(contour)
+    if (nb_contours == 1) :
+        contour = np.squeeze(np.asarray(contour))
+        contour_complex = np.empty(contour.shape[0], dtype=complex)
+        contour_complex.real = contour[:, 0]
+        contour_complex.imag = contour[:, 1]
+        fourier_result = np.fft.fft(contour_complex)
+        DFT = np.fft.fft(contour_complex)
+    if (nb_contours == 2) :
+        contour_concatenated = np.concatenate((contour[0],contour[1]), axis=0)
+        contour_complex = np.empty(contour_concatenated.shape[0], dtype=complex)
+        contour_complex.real = contour_concatenated[:, 1]
+        contour_complex.imag = contour_concatenated[:, 0]
+        DFT = np.fft.fft(contour_complex)
+    if (nb_contours == 3) :
+        contour_concatenated = np.concatenate((contour[0],contour[1],contour[2]), axis=0)
+        contour_complex = np.empty(contour_concatenated.shape[0], dtype=complex)
+        contour_complex.real = contour_concatenated[:, 1]
+        contour_complex.imag = contour_concatenated[:, 0]
+        DFT = np.fft.fft(contour_complex)
+    
+    return DFT[:nb_coeff], nb_contours
+
+#def evaluate_operation(string):
+#    if isinstance(operation, int):
+#        return result + operation 
+#    elif isinstance(operation, str):
+#        if operation == '+':
+#            return
+#        elif operation == '-':
+#        elif operation == '/':
+#        elif operation == '*':
+#
+#        classes = {0:'+', 1:'=', 2:'-', 3:'/', 4:'*'}
+#     
+    
