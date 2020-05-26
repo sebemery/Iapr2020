@@ -1,6 +1,9 @@
+import sys
+sys.path.append('..')
 from helpers import *
-from Robot_tracking import *
-from Equation_element import *
+from robot_tracking import *
+from element_location import *
+from operator_classifier.operators_classifier import classify_operator
 import matplotlib.pyplot as plt
 import numpy as np
 import argparse 
@@ -14,7 +17,7 @@ import pickle
 parser = argparse.ArgumentParser(description='IAPR project')
 
 parser.add_argument('--input', type = str, 
-                    default = './data/robot_parcours_1.avi', help = 'path for input video')
+                    default = '../data/robot_parcours_1.avi', help = 'path for input video')
 
 parser.add_argument('--output', type = str, 
                     default = './output/video.avi', help = 'path for output video')
@@ -50,12 +53,12 @@ result = 0
 
 # model for digits recognition
 model = ConvNet()
-model.load_state_dict(torch.load('model_bin'))
+model.load_state_dict(torch.load('..\digit_classifier\model_bin'))
 model.eval()
 
 # model for operators recognition
-classes = {0:'+', 1:'=', 2:'-', 3:'/', 4:'*'}
-model_operator = pickle.load(open('model_operators.sav', 'rb'))
+classes = {'addition':'+', 'equal':'=', 'substraction':'-', 'division':'/', 'multiplication':'*'}
+model_operator = pickle.load(open('..\operator_classifier\model_operators.sav', 'rb'))
 
 #Main Loop
 for ind, im in enumerate(input_images): 
@@ -110,8 +113,7 @@ for ind, im in enumerate(input_images):
                 # odd -> classify operators 
                 else: 
                     crop_im = crop_im.astype(float)
-                    features = get_features(crop_im,6)
-                    predicted_classe = classes[int(model_operator.predict(np.expand_dims(features, axis = 0)))]
+                    predicted_classe = classes[classify_operator(crop_im,model_operator)]
                     order += 1
                     
                 cropped_object.append(crop_im)
