@@ -53,7 +53,7 @@ result = 0
 
 # model for digits recognition
 model = ConvNet()
-model.load_state_dict(torch.load('..\digit_classifier\Model\model_bin'))
+model.load_state_dict(torch.load('..\digits_classifier\Model\digits_classifier'))
 model.eval()
 
 # model for operators recognition
