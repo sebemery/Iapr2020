@@ -10,21 +10,14 @@ from skimage.measure import moments
 from skimage.transform import warp,AffineTransform
 from skimage.transform import resize
 from skimage.io import imsave
+from Load_image import load_image
 
 
 
-def load_image(image_name) :
-    
-    # Load image and store the image in an numpy array
-    data_path = os.path.join('..\data')
-    image = skimage.io.imread(os.path.join(data_path, image_name))
-    
-    return image
-
-def generate_mask(image_name = 'original_operators.png') : 
+def generate_masks(image_name = 'original_operators.png') : 
 
     # Load image and store the image in an  numpy array
-    operators = load_image(image_name)
+    operators = load_image('..\data',image_name)
 
     # Transform the RGB image of operators in a gray scale image
     operators_gray = rgb2gray(operators)
@@ -119,16 +112,14 @@ def generate_mask(image_name = 'original_operators.png') :
     
     # Save mask and binarized mask for training
     ## Non binarized
-    imsave('..\data\mul.png', mul_resized)
-    imsave('..\data\plus.png', add_resized)
-    imsave('..\data\equal.png', equal_resized)
-    imsave('..\data\minus.png', minus_resized)
-    imsave('..\data\div.png', div_resized)
+    imsave('Masks\mul.png', mul_resized)
+    imsave('Masks\plus.png', add_resized)
+    imsave('Masks\equal.png', equal_resized)
+    imsave('Masks\minus.png', minus_resized)
+    imsave('Masks\div.png', div_resized)
     ## Binarized
-    imsave('..\data\mul_bin.png', mul_resized_binarized)
-    imsave('..\data\plus_bin.png', add_resized_binarized)
-    imsave('..\data\equal_bin.png', equal_resized_binarized)
-    imsave('..\data\minus_bin.png', minus_resized_binarized)
-    imsave('..\data\div_bin.png', div_resized_binarized)
-
-    return add_resized_binarized,equal_resized_binarized,minus_resized_binarized,div_resized_binarized,mul_resized_binarized
+    imsave('Masks\mul_bin.png', mul_resized_binarized)
+    imsave('Masks\plus_bin.png', add_resized_binarized)
+    imsave('Masks\equal_bin.png', equal_resized_binarized)
+    imsave('Masks\minus_bin.png', minus_resized_binarized)
+    imsave('Masks\div_bin.png', div_resized_binarized)

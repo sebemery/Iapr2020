@@ -9,8 +9,9 @@ from skimage.transform import rotate
 from skimage.morphology import disk,square,closing
 from scipy import ndimage as ndi
 from Load_image import load_image
-from Train_data_knn import *
-from Features_operators import *
+import pickle
+from training_data import load_train_data_knn
+from features import get_features
 
 from sklearn.model_selection import train_test_split,cross_val_score,GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
@@ -44,20 +45,12 @@ def cross_validation_knn(nb_rotation ,rotate ,Nb_coeff , nb_neighbors) :
     plt.ylabel('Testing accuracy')
     
     
-def train_knn(nb_rotation ,rotate ,Nb_coeff , nb_neighbors) :
-    
-    # Load data
-    operators = load_train_data_knn(nb_rotation,rotate,)
-    
-    # Get features
-    features, targets = get_features(operators,Nb_coeff)
-    # Only take Fourier Descriptors
-    fetures_knn = features[:,:3]
+def train_knn(features,targets,nb_neighbors) :
     
     # knn
     knn = KNeighborsClassifier(n_neighbors = nb_neighbors)
-    knn_tuned.fit(features_knn, targets)
+    knn.fit(features, targets)
     
     # save model
     filename = 'model_operators.sav'
-    pickle.dump(knn_tuned, open(filename, 'wb'))
+    pickle.dump(knn, open(filename, 'wb'))

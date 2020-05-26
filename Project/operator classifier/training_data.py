@@ -47,9 +47,9 @@ def load_train_data_knn(nb_rotation,rotate=False) :
     """
     
     # Load operators
-    plus = load_image('plus_bin.png')
-    minus = load_image( 'minus_bin.png')
-    mul = load_image('mul_bin.png')
+    plus = load_image('Masks' , 'plus_bin.png')
+    minus = load_image( 'Masks','minus_bin.png')
+    mul = load_image('Masks','mul_bin.png')
     
     # concatenate operators
     

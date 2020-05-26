@@ -15,10 +15,9 @@ import pickle
 from Train_data_knn import *
 from Features_operators import *
 
-def classify_operator(op) :
+def classify_operator(op,model_operator) :
     
-    # knn model for operators recognition
-    model_operator = pickle.load(open('model_operators.sav', 'rb'))
+    # knn classes
     classes_knn = {0:'addition',1:'substraction',2:'multiplication'}
     
     # convert rgb operator in a gray scale image
