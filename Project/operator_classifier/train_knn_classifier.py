@@ -52,5 +52,5 @@ def train_knn(features,targets,nb_neighbors) :
     knn.fit(features, targets)
     
     # save model
-    filename = 'model_operators.sav'
+    filename = 'Model\model_operators.sav'
     pickle.dump(knn, open(filename, 'wb'))

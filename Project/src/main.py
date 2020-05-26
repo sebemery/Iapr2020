@@ -53,12 +53,12 @@ result = 0
 
 # model for digits recognition
 model = ConvNet()
-model.load_state_dict(torch.load('..\digit_classifier\model_bin'))
+model.load_state_dict(torch.load('..\digit_classifier\Model\model_bin'))
 model.eval()
 
 # model for operators recognition
 classes = {'addition':'+', 'equal':'=', 'substraction':'-', 'division':'/', 'multiplication':'*'}
-model_operator = pickle.load(open('..\operator_classifier\model_operators.sav', 'rb'))
+model_operator = pickle.load(open('..\operator_classifier\Model\model_operators.sav', 'rb'))
 
 #Main Loop
 for ind, im in enumerate(input_images): 
