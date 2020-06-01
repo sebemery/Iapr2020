@@ -17,7 +17,7 @@ is sent in a classifier to recognize it and added to the equation. At the end of
 * Pytorch
 * torchvision
 
-### Executable 'for the TA's'
+### Executable `for the TA's`
 
 #### Main executable
 The main.py file runs the code to generate the output video. It first extract and load images from input video in a folder. Then there is a main loop 
@@ -91,4 +91,4 @@ with random rotations as well (as some particular digit of the video was leading
 
 
 ## Contributors
-Canton Diego, Emery Sébastien and Heusghem Pauline
+Canton Diego, Emery SÃ©bastien and Heusghem Pauline
